@@ -3,13 +3,28 @@
 #include <ctype.h>
 
 #define TAILLE_MOT_SECRET 12
+#define MOT_SECRET "PAMPLEMOUSSE"
 
-char lireCharactere () {
-    char caractere = 0;
-    caractere = getchar();
-    caractere = toupper(caractere);
-    while (getchar() != '\n');
-        return caractere;
+void lireCharactere(char* var) {
+    do {
+        printf("\nProposez une lettre: \n\n"); 
+        scanf(" %c", var);
+        if (*var >= 97 && *var <= 122) {
+            //if var is in lowercase, we make it in upper case
+            *var -= 32;
+        }
+    } while (*var < 65 && *var > 90); 
+    // We loop until we have a valid character
+
+
+}
+
+void initTable(int* table, int taille) {
+    // Intitializing table with 0
+    int i;
+    for (i=0; i < taille; i++){
+        table[i] = 0;
+    }
 }
 
 int gagne (int lettreTrouvee[]){
@@ -26,26 +41,31 @@ int gagne (int lettreTrouvee[]){
     return JoueurGagne;
 }
 
-int rechercheLettre(char lettre, char motSecret[], int lettreTrouvee[]){
-    int i = 0;
+int rechercheLettre(char lettre, char motSecret[], int lettreTrouvee[]) {
     int bonnelettre = 0;
-
-    while(motSecret[i]!= '\0'){
-        if (lettre == motSecret[i]){
+    for(int i=0; i < TAILLE_MOT_SECRET; i++) {
+        if (lettre == motSecret[i]){ 
+            if(lettreTrouvee[i]) {
+                //Player already found this letter
+                bonnelettre = 2;
+                break;
+            }
             bonnelettre = 1;
             lettreTrouvee[i]= 1;
         }
-
     }
     return bonnelettre;
 }
 
 int main() {
-    char lettre = 0, motSecret[] = "PAMPLEMOUSSE";
-    int lettreTrouvee[TAILLE_MOT_SECRET] = {0}, coupsRestants = 10, i = 0;
+    char lettre = 0, motSecret[] = MOT_SECRET;
+    int lettreTrouvee[TAILLE_MOT_SECRET], coupsRestants = 10, i = 0;
+
+    initTable(lettreTrouvee, TAILLE_MOT_SECRET);
 
     while (coupsRestants > 0 && !gagne(lettreTrouvee)){
-        printf("\n Il vous reste %d coups à jouer\n", coupsRestants);
+        printf("==================================");
+        printf("\nIl vous reste %d coups à jouer\n", coupsRestants);
         printf("\nDevinez le mot!\n");
         for(i = 0; i < TAILLE_MOT_SECRET; i++){
             if (lettreTrouvee[i]){
@@ -54,17 +74,23 @@ int main() {
                 printf("*");
             }
         }
-        printf("Proposez une lettre: \n\n");
-        lettre = lireCharactere();
-        if (!rechercheLettre(lettre,motSecret,lettreTrouvee)){
+        lireCharactere(&lettre);
+        int result = (rechercheLettre(lettre,motSecret,lettreTrouvee));  
+        if (result == 0) {
+            printf("Mince c'était pas ça :c\n");
             coupsRestants--;
-    }
+        } else if (result == 1){
+            printf("Oui ! La lettre est dedans :D\n");
+        } else {
+            printf("Tu as déjà trouvé cette lettre !\n");
+        }
 
     }
+    printf("==================================");
     if (gagne(lettreTrouvee)){
-        printf("GG!\n");
+        printf("\nGG!\n");
     } else {
-        printf("Trop nul :(\n");
+        printf("\nTrop nul :(\n");
     }
     return 0;
 }
